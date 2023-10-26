@@ -16,14 +16,14 @@ import scapy_ssl_tls.py3compat as py3compat
 def rsa_public_from_der_certificate(certificate):
     # Extract subject_public_key_info field from X.509 certificate (see RFC3280)
     try:
-        # try to extract pubkey from scapy.layers.x509 X509Cert type in case
-        # der_certificate is of type X509Cert
-        # Note: der_certificate may not be of type X509Cert if it wasn't
+        # try to extract pubkey from scapy.layers.x509 X509_Cert type in case
+        # der_certificate is of type X509_Cert
+        # Note: der_certificate may not be of type X509_Cert if it wasn't
         # received completely, in that case, we'll try to extract it anyway
         # using the old method.
-        # TODO: get rid of the old method and always expect X509Cert obj ?
+        # TODO: get rid of the old method and always expect X509_Cert obj ?
         """
-        Rebuild ASN1 SubjectPublicKeyInfo since X509Cert does not provide the full struct
+        Rebuild ASN1 SubjectPublicKeyInfo since X509_Cert does not provide the full struct
 
         ASN1F_SEQUENCE(
                 ASN1F_SEQUENCE(ASN1F_OID("pubkey_algo","1.2.840.113549.1.1.1"),
