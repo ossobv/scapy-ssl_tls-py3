@@ -1,38 +1,46 @@
+[!WARNING] You probably do not need this project. scapy already has
+the TLS tools. See conversion steps like
+`ossobv/vcutil/tls-sniff-ciphers@9e8beb9 <https://github.com/ossobv/vcutil/commit/9e8beb9b4e1725ff4bac82e55264e0824d09626c>`__.
+
 SSL/TLS layers for scapy the interactive packet manipulation tool.
 
 Scapy-SSL/TLS
 =============
 
 SSL/TLS and DTLS layers and TLS utiltiy functions for
-`Scapy <http://www.secdev.org/projects/scapy/>`_.
+`Scapy <http://www.secdev.org/projects/scapy/>`__.
 
 An offensive stack for SSLv2, SSLv3 (TLS), TLS, DTLS penetration testing
 providing easy access to packet crafting, automatic dissection,
 encryption, decryption, session tracking, basic TLS state machines,
 automated handshakes, TLSSocket abstraction, cryptography containers,
 predefined hooks, SSL sniffing including minimalistic PCAP stream
-decryption (RSA\_WITH\_\*), fuzzing and security scanning
-(*Renegotiation, Heartbleed, Poodle, Logjam/Freak, DROWN, various Buffer
-overflows, ...*).
+decryption (RSA_WITH_*), fuzzing and security scanning (*Renegotiation,
+Heartbleed, Poodle, Logjam/Freak, DROWN, various Buffer overflows, …*).
 
 Features
 --------
 
--  Protocol Support
--  TLS 1.2
--  TLS 1.1
--  TLS 1.0
--  SSLv3/TLS Records
--  SSLv2 Handshake
--  DTLS Records
--  TLS Session Context
--  Session Tracking
--  Key sniffing (master\_key, ...)
--  Client and Server support
--  Sniffer / PCAP processor and decryptor
--  State Machines
--  TLS Client Scapy Automata
--  TLS Server Scapy Automata
+- Protocol Support
+
+  -  TLS 1.2
+  -  TLS 1.1
+  -  TLS 1.0
+  -  SSLv3/TLS Records
+  -  SSLv2 Handshake
+  -  DTLS Records
+
+- TLS Session Context
+
+  -  Session Tracking
+  -  Key sniffing (master_key, …)
+
+- Client and Server support
+- Sniffer / PCAP processor and decryptor
+- State Machines
+
+  -  TLS Client Scapy Automata
+  -  TLS Server Scapy Automata
 
 Installation
 ------------
@@ -60,22 +68,22 @@ Option 3: manual installation
 2) locate *< scapy >* installation directory:
    ``python3 -c "import scapy; print(scapy.__file__)"``
 
-3) copy scapy\_ssl\_tls/\* to *< scapy >*/layers/
+3) copy scapy_ssl_tls/\* to *< scapy >*/layers/
 
 4) modify *< scapy >*/config.py to autoload SSL/TLS
 
-::
+.. code:: diff
 
     @@ -373,3 +373,3 @@
     load_layers = ["l2", "inet", "dhcp", "dns", "dot11", "gprs", "hsrp", "inet6", "ir", "isakmp", "l2tp",
     -                   "mgcp", "mobileip", "netbios", "netflow", "ntp", "ppp", "radius", "rip", "rtp",
     +                   "mgcp", "mobileip", "netbios", "netflow", "ntp", "ppp", "radius", "rip", "rtp","ssl_tls",
-                        "sebek", "skinny", "smb", "snmp", "tftp", "x509", "bluetooth", "dhcp6", "llmnr", "sctp", "vrrp" ]
+                      "sebek", "skinny", "smb", "snmp", "tftp", "x509", "bluetooth", "dhcp6", "llmnr", "sctp", "vrrp" ]
 
 verify installation:
 ''''''''''''''''''''
 
-::
+.. code:: python
 
     #> python
         >>> from scapy_ssl_tls.ssl_tls import TLS
@@ -97,32 +105,26 @@ Troubleshooting
 ---------------
 
 **Q:** ``sessionctx_sniffer.py`` does not seem to detect ``SSL/TLS`` or
-does not show any sniffed ``SSL/TLS`` sessions.
-
-**A:** This is problem caused by the import magic in
-``sessionctx_sniffer.py`` where the example might mix up imports from
-the projects directory with the ones installed with ``pip`` or via
-``setup.py install``. Make sure to update to ``>=v1.2.3``, or run
-``sessionctx_sniffer.py`` from a different directory, or uninstall
-scapy-ssl\_tls to use it directly from the project directory, or remove
-the ``from scapy_ssl_tls.ssl_tls import *`` import lines from the
-example.
-
-**Note:** This has been addressed with ``>=v1.2.3`` where the
-system-wide import has preference.
-
+does not show any sniffed ``SSL/TLS`` sessions. **A:** This is problem
+caused by the import magic in ``sessionctx_sniffer.py`` where the
+example might mix up imports from the projects directory with the ones
+installed with ``pip`` or via ``setup.py install``. Make sure to update
+to ``>=v1.2.3``, or run ``sessionctx_sniffer.py`` from a different
+directory, or uninstall scapy-ssl_tls to use it directly from the
+project directory, or remove the ``from scapy_ssl_tls.ssl_tls import *``
+import lines from the example. **Note:** This has been addressed with
+``>=v1.2.3`` where the system-wide import has preference.
 
 **Q:** ``sessionctx_sniffer.py`` does not seem to dissect large
-``SSL/TLS`` records properly.
-
-**A:** In order to fully reconstruct *sniffed* ``SSL/TLS`` records one
-needs to ``defragment`` the sniffed IP packets and ``reassemble`` them
-to TCP segments. Since TCP Stream reassembly is not an easy task
-(retransmissions, out-of-order segments, ...) - and therefore out of
-scope for this project - the ``sessionctx_sniffer.py`` example
-implements a very limited tcp stream reassembly algorithm that only
-tries to reconstruct consecutive segments not taking into account any
-type of flow-control (ordering, retransmissions, ...).
+``SSL/TLS`` records properly. **A:** In order to fully reconstruct
+*sniffed* ``SSL/TLS`` records one needs to ``defragment`` the sniffed IP
+packets and ``reassemble`` them to TCP segments. Since TCP Stream
+reassembly is not an easy task (retransmissions, out-of-order segments,
+…) - and therefore out of scope for this project - the
+``sessionctx_sniffer.py`` example implements a very limited tcp stream
+reassembly algorithm that only tries to reconstruct consecutive segments
+not taking into account any type of flow-control (ordering,
+retransmissions, …).
 
 Examples
 --------
@@ -130,7 +132,7 @@ Examples
 Heartbleed Record
 '''''''''''''''''
 
-::
+.. code:: python
 
     ==============================================================================
     >>> (TLSRecord(version="TLS_1_1")/TLSHeartBeat(length=2**14-1,data='bleed...')).show()
@@ -147,7 +149,7 @@ Heartbleed Record
 Heartbleed Attack
 '''''''''''''''''
 
-::
+.. code:: python
 
     import scapy
     from scapy.layers.ssl_tls import *
@@ -170,7 +172,7 @@ Heartbleed Attack
 Dissect TLSClientHello (pcap)
 '''''''''''''''''''''''''''''
 
-::
+.. code:: python
 
     >>> rdpcap("a.cap")[3].show()
     ###[ Ethernet ]###
@@ -315,12 +317,12 @@ Dissect TLSClientHello (pcap)
                 |         |      |  hash_alg= sha1
                 |         |      |  sig_alg= dsa
 
-Full Handshake with Application Data (DHE\_RSA\_WITH\_AES\_128\_CBC\_SHA)
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+Full Handshake with Application Data (DHE_RSA_WITH_AES_128_CBC_SHA)
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-see /examples/full\_rsa\_connection\_with\_application\_data.py
+see /examples/full_rsa_connection_with_application_data.py
 
-::
+.. code:: python
 
     # python3 examples/full_rsa_connection_with_application_data.py localhost 443
     Connected to server: ('localhost', 443)
@@ -483,12 +485,12 @@ see /examples/full\_rsa\_connection\_with\_application\_data.py
              crypto.session.key.length.iv=16
     >
 
-Full Handshake with Application Data (ECDHE\_RSA\_WITH\_AES\_128\_CBC\_SHA256)
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+Full Handshake with Application Data (ECDHE_RSA_WITH_AES_128_CBC_SHA256)
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-see /examples/full\_rsa\_connection\_with\_application\_data.py
+see /examples/full_rsa_connection_with_application_data.py
 
-::
+.. code:: python
 
     # python3 examples/full_rsa_connection_with_application_data.py localhost 443
     Connected to server: ('localhost', 443)
@@ -663,9 +665,9 @@ SCSV Fallback Testing
 
 socket stream example to test remote implementations for protocol
 downgrading attemps (following latest SSL POODLE attacks) -
-examples/SCSV\_fallback\_test.py
+examples/SCSV_fallback_test.py
 
-::
+.. code:: python
 
     for: ('google.com', 443)
        record      hello
@@ -692,7 +694,7 @@ examples/SCSV\_fallback\_test.py
 SSLv2 dissection
 ''''''''''''''''
 
-::
+.. code:: python
 
     -----------------------
     ###[ SSL/TLS ]###
@@ -712,10 +714,10 @@ SSLv2 dissection
 TLS Sniffer / PCAP decryption
 '''''''''''''''''''''''''''''
 
-TLS1.0 Session Context based decryption of RSA\_WITH\_AES\_128\_CBC\_SHA
-for known private key
+TLS1.0 Session Context based decryption of RSA_WITH_AES_128_CBC_SHA for
+known private key
 
-::
+.. code:: python
 
     # python3 examples/sessionctx_sniffer.py 192.168.220.131 443 tests/files/RSA_WITH_AES_128_CBC_SHA_w_key.pcap tests/files/openssl_1_0_1_f_server.pem
     * pcap ready!
@@ -782,7 +784,7 @@ SSL Security Scanner
 
 Active Scanner:
 
-::
+.. code:: python
 
     # python3 examples/security_scanner.py active localhost 443
 
@@ -893,7 +895,7 @@ Active Scanner:
 
 Passive Scanner:
 
-::
+.. code:: python
 
     # python3 examples/security_scanner.py sniff 192.168.139.131 443
     An example implementation of a passive TLS security scanner with custom starttls support:
@@ -923,6 +925,5 @@ Passive Scanner:
 Authors / Contributors
 ----------------------
 
--  tintinweb ( http://oststrom.com \| https://github.com/tintinweb)
--  alexmgr ( https://github.com/alexmgr )
-
+- tintinweb ( http://oststrom.com \| https://github.com/tintinweb)
+- alexmgr ( https://github.com/alexmgr )
