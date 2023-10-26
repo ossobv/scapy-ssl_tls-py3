@@ -116,7 +116,7 @@ xVgf/Neb/avXgIgi6drj8dp1fWA=
         tls_ctx.insert(pkt)
         self.assertEqual(tls_ctx.negotiated.compression_algo,
                          tlsc.TLSCompressionParameters.comp_params[compression_method]["name"])
-        input_ = "some data" * 16
+        input_ = b"some data" * 16
         self.assertEqual(tls_ctx.client_ctx.compression.decompress(tls_ctx.client_ctx.compression.compress(input_)),
                          input_)
 
@@ -170,22 +170,22 @@ xVgf/Neb/avXgIgi6drj8dp1fWA=
 
     def test_fixed_crypto_data_matches_verify_data(self):
         version = tls.TLSVersion.TLS_1_0
-        client_verify_data = "e23f73911909a86be9e93fdb"
-        server_verify_data = "dfed5860b3eb4a3deaa9cf39"
+        client_verify_data = b"e23f73911909a86be9e93fdb"
+        server_verify_data = b"dfed5860b3eb4a3deaa9cf39"
         tls_ctx = tlsc.TLSSessionCtx()
         # tls_ctx.rsa_load_keys(self.pem_priv_key)
         client_hello = tls.TLSRecord() / tls.TLSHandshakes(handshakes=[tls.TLSHandshake() / tls.TLSClientHello(version=version,
                                                                                                                gmt_unix_time=1234,
-                                                                                                               random_bytes="A" * 28)])
+                                                                                                               random_bytes=b"A" * 28)])
         # Hello Request should be ignored in verify_data calculation
         tls_ctx.insert(tls.TLSHelloRequest())
         tls_ctx.insert(client_hello)
-        tls_ctx.premaster_secret = "B" * 48
-        epms = "C" * 256
+        tls_ctx.premaster_secret = b"B" * 48
+        epms = b"C" * 256
         server_hello = tls.TLSRecord(version=version) / tls.TLSHandshakes(handshakes=[tls.TLSHandshake() / tls.TLSServerHello(version=version,
                                                                                                                               gmt_unix_time=1234,
-                                                                                                                              session_id="",
-                                                                                                                              random_bytes="A" * 28)])
+                                                                                                                              session_id=b"",
+                                                                                                                              random_bytes=b"A" * 28)])
         tls_ctx.insert(server_hello)
         client_kex = tls.TLSRecord(version=version) / tls.TLSHandshakes(handshakes=[tls.TLSHandshake() / tls.TLSClientKeyExchange() /
             tls.TLSClientRSAParams(data=epms)])
@@ -207,12 +207,12 @@ xVgf/Neb/avXgIgi6drj8dp1fWA=
         client_privkey = 5398526532442504864680398257365369432058147704829279760748758494328728516319
         client_pubkey = tls_ctx.get_client_dh_pubkey(client_privkey)
         self.assertEqual(
-            ("/T\xdc;\xc49\xa6\x8cD\xd4\xc1\x07I|\xb6\xc8\xaf\xb5\x04\xe9\xfb\t\x0e}\x14~\xa4\x1f\xdfo\x08u)Z\xb3\x0e"
-             "\x1c^\xa3x0\x90\xa1\xd7\x82\x9dLT\xa6^\xcc\xf7\xae\x87\x97\x86vi\x02s\x10\xb3\xdbo"),
+            (b"/T\xdc;\xc49\xa6\x8cD\xd4\xc1\x07I|\xb6\xc8\xaf\xb5\x04\xe9\xfb\t\x0e}\x14~\xa4\x1f\xdfo\x08u)Z\xb3\x0e"
+             b"\x1c^\xa3x0\x90\xa1\xd7\x82\x9dLT\xa6^\xcc\xf7\xae\x87\x97\x86vi\x02s\x10\xb3\xdbo"),
             client_pubkey)
         self.assertEqual(
-            ("}\xcae\xd2y\xd7F$\xde\"\xa9s\xfbNR9v\x19t9\x87\xa8\xa3\x9c\xccb]\x13\xb7\x8a\x8f\xdf\x7fv\x05\xa6\xf1\xa7"
-             "\xc8\xf4X\xe3\xd4\xac\xd6\x1e4\xb4\x1cc\xbb\xce\xbe\x94lQ\x91\xb9\xde\xb7\xa6gu_"),
+            (b"}\xcae\xd2y\xd7F$\xde\"\xa9s\xfbNR9v\x19t9\x87\xa8\xa3\x9c\xccb]\x13\xb7\x8a\x8f\xdf\x7fv\x05\xa6\xf1\xa7"
+             b"\xc8\xf4X\xe3\xd4\xac\xd6\x1e4\xb4\x1cc\xbb\xce\xbe\x94lQ\x91\xb9\xde\xb7\xa6gu_"),
             tls_ctx.premaster_secret)
 
     def test_client_ecdh_parameters_generation_matches_fixed_data(self):
@@ -224,11 +224,11 @@ xVgf/Neb/avXgIgi6drj8dp1fWA=
         client_privkey = 15320484772785058360598040144348894600917526501829289880527760633524785596585
         client_keys = ec.Keypair(secp256r1, client_privkey)
         client_pubkey = tls_ctx.get_client_ecdh_pubkey(client_privkey)
-        self.assertTrue(client_pubkey.startswith("\x04"))
-        self.assertEqual("\x04%s%s" % (tlsk.int_to_str(client_keys.pub.x), tlsk.int_to_str(client_keys.pub.y)),
+        self.assertTrue(client_pubkey.startswith(b"\x04"))
+        self.assertEqual(b"\x04%s%s" % (tlsk.int_to_str(client_keys.pub.x), tlsk.int_to_str(client_keys.pub.y)),
                          client_pubkey)
         self.assertEqual(client_keys.pub, tls_ctx.client_ctx.kex_keystore.public)
-        self.assertEqual("'(\x17\x94l\xd7AO\x03\xd4Fi\x05}mP\x1aX5C7\xf0_\xa9\xb0\xac\xba{r\x1f\x12\x8f",
+        self.assertEqual(b"'(\x17\x94l\xd7AO\x03\xd4Fi\x05}mP\x1aX5C7\xf0_\xa9\xb0\xac\xba{r\x1f\x12\x8f",
                          tls_ctx.premaster_secret)
 
     def test_after_tl13_server_hello_then_key_material_is_installed(self):

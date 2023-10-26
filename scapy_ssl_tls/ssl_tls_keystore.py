@@ -69,20 +69,17 @@ def pem_to_der(certificate):
 
 
 def nb_bits(int_):
-    if int_ == 0:
-        return 0
-    return int(math.ceil(math.log(int_) / math.log(2)))
+    return int_.bit_length()
 
 
 def int_to_str(int_):
-    hex_ = "%x" % int_
-    return binascii.unhexlify("%s%s" % ("" if len(hex_) % 2 == 0 else "0", hex_))
+    num_bytes = (int_.bit_length() + 7) // 8
+    return  int_.to_bytes(num_bytes, byteorder='big')
 
 
 def str_to_int(str_):
-    if str_ == "":
-        return 0
-    return int(binascii.hexlify(str_), 16)
+    assert isinstance(str_, bytes), str_
+    return int.from_bytes(str_, byteorder='big')
 
 
 def ansi_str_to_point(str_):

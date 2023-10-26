@@ -521,7 +521,7 @@ TLS Session Context:
             self.__handle_ccs(pkt[tls.TLSChangeCipherSpec], origin=origin)
 
     def _generate_random_pms(self, version):
-        return "%s%s" % (struct.pack("!H", version), os.urandom(46))
+        return b"%s%s" % (struct.pack("!H", version), os.urandom(46))
 
     def get_encrypted_pms(self, pms=None):
         cleartext = pms or self.premaster_secret
@@ -543,7 +543,7 @@ TLS Session Context:
         # Per RFC 4346 section 8.1.2
         # Leading bytes of Z that contain all zero bits are stripped before it is used as the
         # pre_master_secret.
-        self.premaster_secret = tlsk.int_to_str(pms).lstrip("\x00")
+        self.premaster_secret = tlsk.int_to_str(pms).lstrip(b"\x00")
         return tlsk.int_to_str(self.client_ctx.kex_keystore.public)
 
     def get_client_ecdh_pubkey(self, private=None):
