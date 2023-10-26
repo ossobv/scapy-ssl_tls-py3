@@ -763,11 +763,11 @@ class TLS13PRF(object):
             self.len_ = struct.pack("!H", len_)
             if (len(label) > 255) or (len(hash_) > 255):
                 raise ValueError("All values must be 255 bytes or less")
-            self.label = "%s%s" % (self.LABEL_PREFIX, label)
+            self.label = b"%s%s" % (self.LABEL_PREFIX, label)
             self.hash_ = hash_
 
         def __str__(self):
-            return "%s%s%s%s%s" % (self.len_, struct.pack("B", len(self.label)), self.label, struct.pack("B", len(self.hash_)), self.hash_)
+            return b"%s%s%s%s%s" % (self.len_, struct.pack("B", len(self.label)), self.label, struct.pack("B", len(self.hash_)), self.hash_)
 
     class TLSPRFEarlySecrets(object):
         def __init__(self, early_secret, binder_key=b"", client_early_traffic_secret=b"", early_exporter_secret=b""):
@@ -1168,10 +1168,11 @@ class StreamCryptoContainer(CryptoContainer):
         content_type_ = struct.pack("!B", self.crypto_data.content_type)
         version_ = struct.pack("!H", self.crypto_data.version)
         len_ = struct.pack("!H", self.crypto_data.data_len)
-        self.digest.update("%s%s%s%s%s" % (sequence_, content_type_, version_, len_, self.crypto_data.data))
+        self.digest.update(b"%s%s%s%s%s" % (sequence_, content_type_, version_, len_, self.crypto_data.data))
         self.mac = self.digest.digest()
 
     def __str__(self):
+        raise NotImplementedError('xxx')
         return "%s%s" % (self.crypto_data.data, self.mac)
 
 
@@ -1215,6 +1216,7 @@ class CBCCryptoContainer(CryptoContainer):
         self.padding = self.pkcs7.get_padding("%s%s\xff" % (self.crypto_data.data, self.mac))
 
     def __str__(self):
+        raise NotImplementedError('xxx')
         return "%s%s%s%s%s" % (self.explicit_iv, self.crypto_data.data, self.mac, self.padding, self.padding_len)
 
 
@@ -1241,6 +1243,7 @@ class EAEADCryptoContainer(CryptoContainer):
         self.aead = "%s%s%s%s" % (sequence_, content_type_, version_, len_)
 
     def __str__(self):
+        raise NotImplementedError('xxx')
         return self.crypto_data.data
 
 
@@ -1258,7 +1261,8 @@ class IAEADCryptoContainer(CryptoContainer):
         return IAEADCryptoContainer.from_context(tls_ctx, ctx, crypto_data)
 
     def __str__(self):
-        return b"%s%s%s" % (self.crypto_data.data, struct.pack("!B", self.crypto_data.content_type), self.crypto_data.padding)
+        raise NotImplementedError('xxx')
+        return "%s%s%s" % (self.crypto_data.data, struct.pack("!B", self.crypto_data.content_type), self.crypto_data.padding)
 
 
 class CryptoContainerFactory(object):
