@@ -208,7 +208,7 @@ class TestTLSDissector(unittest.TestCase):
     def test_dissected_stacked_tls_records_are_identical_to_input_packet(self):
         pkt = tls.TLS(self.payload)
         self.assertEqual(len(pkt), len(self.payload))
-        self.assertEqual(str(pkt), self.payload)
+        self.assertEqual(pkt.data, self.payload)
 
     def test_extensions_are_removed_when_non_specified(self):
         pkt = tls.TLS(self.payload)
@@ -488,19 +488,19 @@ class TestKeyExchange(unittest.TestCase):
 class TestTLSPlaintext(unittest.TestCase):
 
     def test_built_plaintext_has_no_mac_and_padding_when_unspecified(self):
-        plaintext = tls.TLSPlaintext(data="AAAA")
-        self.assertEqual(str(plaintext), "AAAA")
+        plaintext = tls.TLSPlaintext(data=b"AAAA").data
+        self.assertEqual(plaintext, b"AAAA")
 
     def test_built_plaintext_includes_mac_and_padding_if_not_empty(self):
-        data = "A" * 4
-        mac = "B" * 16
-        padding = "C" * 19
+        data = b"A" * 4
+        mac = b"B" * 16
+        padding = b"C" * 19
         plaintext = tls.TLSPlaintext(data=data, mac=mac, padding=padding)
         self.assertEqual(len(data) + len(mac) + len(padding) + 1, len(str(plaintext)))
         self.assertEqual(plaintext.mac, mac)
         self.assertEqual(plaintext.padding, padding)
-        self.assertEqual(ord(str(plaintext)[-1]), len(padding))
-        self.assertEqual("%s%s%s%s" % (data, mac, padding, chr(len(padding))), str(plaintext))
+        self.assertEqual(plaintext[-1], len(padding))
+        self.assertEqual(b"%s%s%s%s" % (data, mac, padding, chr(len(padding))), plaintext)
 
 
 class TestPCAP(unittest.TestCase):
@@ -614,7 +614,7 @@ class TestPCAP(unittest.TestCase):
                 tls.TLSCiphertext].data,
             '%\xb8X\xc1\xa6?\xf8\xbd\xe6\xae\xbd\x98\xd4u\xa5E\x1b\xd8jpy\x86)NOd\xba\xe7\x1f\xcaK\x96\x9b\xf7\x0bP\xf5O\xfd\xda\xda\xcd\xcdK\x12.\xdf\xd5')
         # some more encrypted traffic
-        for _ in xrange(6):
+        for _ in range(6):
             # Application data - encrypted - 6 times
             record = pkts.pop()
             self.assertTrue(record.haslayer(tls.TLSRecord))

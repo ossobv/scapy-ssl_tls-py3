@@ -207,7 +207,7 @@ class TestExampleSnifferWithOpenSslServerAndClient(unittest.TestCase):
         # we cannot poll as this would mess up the server socket
         time.sleep(3)
         # connect with client (openssl)
-        for _ in xrange(50):
+        for _ in range(50):
             client = OpenSslClient(args=(self.bind))
             client.stdin.write("It works!\r\n\r\n")
             self.assertEqual(client.getReturnCode("Q\n"), 0)

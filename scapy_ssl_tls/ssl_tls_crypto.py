@@ -14,7 +14,7 @@ import math
 
 import scapy_ssl_tls.py3compat as py3compat
 import scapy_ssl_tls.pkcs7 as pkcs7
-import ssl_tls as tls  # fix import
+import scapy_ssl_tls.ssl_tls as tls
 import scapy_ssl_tls.ssl_tls_keystore as tlsk
 import tinyec.ec as ec
 import tinyec.registry as ec_reg

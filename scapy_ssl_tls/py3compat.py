@@ -23,7 +23,7 @@ if PY2:
     decodebytes = base64.decodestring
     encodebytes = base64.encodestring
     
-    xrange = xrange
+    range = range
     py2range = range
 
     import __builtin__ as builtins
@@ -129,7 +129,7 @@ else:
     input = input
     decodebytes = base64.decodebytes
     encodebytes = base64.encodebytes
-    xrange = range
+    range = range
     
     def py2range(it):
         return list(range(it))

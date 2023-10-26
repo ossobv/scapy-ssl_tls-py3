@@ -198,9 +198,11 @@ class PacketLengthFieldPayload(Packet):
 class StackedLenPacket(Packet):
     """ Allows stacked packets. Tries to chop layers by layer.length
     """
+    __slots__ = ['tls_ctx']
+
     def __init__(self, *args, **fields):
-        self.tls_ctx = fields.pop("ctx", None)
-        Packet.__init__(self, *args, **fields)
+        super(Packet, self).__setattr__('tls_ctx', fields.pop("ctx", None))
+        super().__init__(*args, **fields)
 
     def do_dissect_payload(self, s):
         # prototype for this layer. only layers of same type can be stacked
@@ -432,10 +434,11 @@ class TLSRecord(StackedLenPacket):
     fields_desc = [ByteEnumField("content_type", TLSContentType.APPLICATION_DATA, TLS_CONTENT_TYPES),
                    XShortEnumField("version", TLSVersion.TLS_1_0, TLS_VERSIONS),
                    XLenField("length", None, fmt="!H")]
+    __slots__ = ['fragments']
 
     def __init__(self, *args, **fields):
-        self.fragments = []
-        StackedLenPacket.__init__(self, *args, **fields)
+        super(Packet, self).__setattr__('fragments', [])
+        super().__init__(*args, **fields)
 
     def guess_payload_class(self, payload):
         """ Sense for ciphertext
@@ -501,8 +504,8 @@ class TLSExtension(PacketLengthFieldPayload):
     def __init__(self, *args, **fields):
         # This tells us from which context we have been called from. It will hold the name of the calling packet,
         # but could be any metadata
-        self.type_ = fields.pop("type_", None)
-        PacketLengthFieldPayload.__init__(self, *args, **fields)
+        super(Packet, self).__setattr__('type_', None)
+        super().__init__(*args, **fields)
 
 
 class TLSExtMaxFragmentLength(PacketNoPayload):
@@ -766,10 +769,12 @@ class TLSHeartBeat(PacketNoPayload):
 
 
 class TLSKeyExchange(Packet):
+    __slots__ = ['tls_ctx']
+
     def __init__(self, *args, **fields):
         # Unneeded, left for backwards compat
-        self.tls_ctx = fields.pop("ctx", None)
-        Packet.__init__(self, *args, **fields)
+        super(Packet, self).__setattr__('tls_ctx', fields.pop("ctx", None))
+        super().__init__(*args, **fields)
 
     def guess_payload_class(self, payload):
         pkt = self.underlayer
@@ -956,10 +961,11 @@ class TLSDecryptablePacket(PacketLengthFieldPayload):
         XFieldLenField("padding_len", None, length_of="padding", fmt="B"),
         lambda pkt: True if pkt and hasattr(pkt, "padding") and pkt.padding != "" else False)
     decryptable_fields = [mac_field, padding_field, padding_len_field]
+    __slots__ = ['tls_ctx']
 
     def __init__(self, *args, **fields):
         try:
-            self.tls_ctx = fields["ctx"]
+            super(Packet, self).__setattr__('tls_ctx', fields["ctx"])
             del(fields["ctx"])
             if self.explicit_iv_field not in self.fields_desc and self.tls_ctx.requires_iv:
                 self.fields_desc.append(self.explicit_iv_field)
@@ -967,8 +973,8 @@ class TLSDecryptablePacket(PacketLengthFieldPayload):
                 if field not in self.fields_desc:
                     self.fields_desc.append(field)
         except KeyError:
-            self.tls_ctx = None
-        PacketLengthFieldPayload.__init__(self, *args, **fields)
+            super(Packet, self).__setattr__('tls_ctx', None)
+        super().__init__(*args, **fields)
 
     def pre_dissect(self, raw_bytes):
         data = raw_bytes
@@ -1057,8 +1063,8 @@ class TLSHandshake(PacketLengthFieldPayload):
                    XBLenField("length", None, fmt="!I", numbytes=3)]
 
     def __init__(self, *args, **fields):
-        self.tls_ctx = fields.pop("ctx", None)
-        PacketLengthFieldPayload.__init__(self, *args, **fields)
+        super(Packet, self).__setattr__('tls_ctx', fields.pop("ctx", None))
+        super().__init__(*args, **fields)
 
 
 class PacketListFieldContext(PacketListField):
@@ -1318,11 +1324,12 @@ class SSL(Packet):
     name = "SSL/TLS"
     fields_desc = [PacketListField("records", None, TLSRecord)]
     CONTENT_TYPE_MAP = {0x15: TLSAlert, 0x16: TLSHandshakes, 0x17: TLSPlaintext}
+    __slots__ = ['tls_ctx', '_origin']
 
     def __init__(self, *args, **fields):
-        self.tls_ctx = fields.pop("ctx", None)
-        self._origin = fields.pop("_origin", None)
-        Packet.__init__(self, *args, **fields)
+        super(Packet, self).__setattr__('tls_ctx', fields.pop("ctx", None))
+        super(Packet, self).__setattr__('_origin', fields.pop("_origin", None))
+        super().__init__(*args, **fields)
 
     @classmethod
     def from_records(cls, records, ctx=None):

@@ -38,7 +38,7 @@ class TCPConnection(object):
         last_exception = None
         self.target = target
         self._s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        for t in xrange(1, 4):
+        for t in range(1, 4):
             try:
                 self._s.connect(target)
                 break
